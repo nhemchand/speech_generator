@@ -1,49 +1,42 @@
-# import os
-# import io # NEW: For handling audio in-memory
-# from gtts import gTTS # NEW: Google Text-to-Speech
+import os
 
-# from langchain_core.prompts import PromptTemplate
-# from langchain_openai import ChatOpenAI
-# import streamlit as st
-# from langchain_core.output_parsers import StrOutputParser
-# from dotenv import load_dotenv, find_dotenv
-# _ = load_dotenv(find_dotenv()) # read local .env file
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+import streamlit as st
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.globals import set_debug
 
-# OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
-# llm=ChatOpenAI(model="gpt-4o-mini",api_key=OPENAI_API_KEY)
+set_debug(True)
 
-# topic_prompt= PromptTemplate(
-#     input_variables=["topic"],
-#     template ="""You are a professional blogger.
-#     Create an outline for a blog post on the following topic: {topic}
-#     The outline should include:
-#         - Introduction
-#         - 3 main points with subpoints
-#         - Conclusion: {topic}
-#     """
-#     )
+OPENAI_API_KEY=os.getenv("OPENAI_API_KEY")
+#OPENAI_API_KEY=""
+llm=ChatOpenAI(model="gpt-4o-mini",api_key=OPENAI_API_KEY)
+title_prompt= PromptTemplate(
+    input_variables=["topic"],
+    template ="""You are an experienced speech writer.
+    You need to craft an impactful title for a speech
+    on the following topic: {topic} 
+    Answer exactly with one title.
+    """
+    )
 
-# blog_prompt= PromptTemplate(
-#     input_variables=["outline"],
-#     template ="""You are a professional blogger.
-#     Write an engaging introduction paragraph based on the following
-#     outline:{outline}
-#     The introduction should hook the reader and provide a brief
-#     overview of the topic.
-#     """
-#     )
+speech_prompt= PromptTemplate(
+    input_variables=["ABC","language"],
+    template ="""You need to write a powerful speech of 350 words
+    for the following title: {ABC}
+    Answer exactly with one title.
+    """
+    )
+first_chain = title_prompt | llm | StrOutputParser() | (lambda title: (st.write(title),title)[1])
 
-# first_chain = topic_prompt | llm | StrOutputParser() | (lambda title: (st.write(title),title)[1])
-# second_chain = blog_prompt | llm
+second_chain = speech_prompt | llm
 
-# #second_chain = speech_prompt | llm | StrOutputParser() # Without StrOutputParse,  response is an AIMessage object (and not a raw string), you extract the actual speech.
-# final_chain = first_chain | second_chain
+final_chain = first_chain | second_chain
 
-# st.title("Blog Post Generator")
-# topic = st.text_input("Enter a topic ")
+st.title("Speech Generator")
+topic = st.text_input("Enter a topic ")
+language = st.text_input("Enter a language ")
 
-# if topic:
-#     response = final_chain.invoke({"topic":topic})
-#     st.write(response.content) # No need for .content anymore! as we added StrOutputParser against second chain
-
-
+if topic:
+    response = final_chain.invoke({"topic":topic})
+    st.write(response.content)
