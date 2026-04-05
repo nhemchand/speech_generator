@@ -5,4 +5,4 @@ langchain-openai
 langchain-community
 openai
 python-dotenv
-gtts==2.5.4
+gtts
