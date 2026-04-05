@@ -6,4 +6,3 @@ langchain-community
 openai
 gtts
 python-dotenv
-gtts
