@@ -4,5 +4,5 @@ langchain-core
 langchain-openai
 langchain-community
 openai
-gtts
 python-dotenv
+gtts==2.5.4
